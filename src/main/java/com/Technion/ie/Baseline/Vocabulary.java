@@ -1,6 +1,7 @@
 package com.Technion.ie.Baseline;
 
 import java.util.HashMap;
+import java.util.Set;
 
 public class Vocabulary {
 
@@ -11,16 +12,28 @@ public class Vocabulary {
 		this.vocabularyMap = new HashMap<String,Integer> ();
 	}
 	
-	public void addNewWord (String word)
+	public void addWord (String word)
 	{
-		this.vocabularyMap.put(word, 1);
+		if (this.vocabularyMap.containsKey(word) )
+		{
+			int oldCount = (int)this.vocabularyMap.get(word);
+			int newCount = oldCount + 1;
+			this.vocabularyMap.put(word, newCount);
+		}
+		else 
+		{
+			this.vocabularyMap.put(word, 1);
+		}
 	}
 	
-	public void addExistingWord (String word)
+	public int getSize()
 	{
-		int oldCount = (int)this.vocabularyMap.get(word);
-		int newCount = oldCount + 1;
-		this.vocabularyMap.put(word, newCount);
+		return this.vocabularyMap.size();
+	}
+	
+	public Set<String> getAllWords()
+	{
+		return this.vocabularyMap.keySet();
 	}
 	
 	public int getCountForWord (String word)
@@ -36,6 +49,19 @@ public class Vocabulary {
 	public int getVocabularySize ()
 	{
 		return this.vocabularyMap.size();
+	}
+	
+	public void addSentence (String[] sentence)
+	{
+		for (String word : sentence) 
+		{
+			this.addWord(word);
+		}
+	}
+	
+	public boolean containsWord (String word)
+	{
+		return this.vocabularyMap.containsKey(word);
 	}
 	
 	
