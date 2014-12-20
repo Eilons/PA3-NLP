@@ -15,9 +15,8 @@ import com.Technion.ie.Utils.Utils;
 public class EM {
 	
 	private final static Logger logger = Logger.getLogger(EM.class);
+	public static final Integer ITERATIONS = 5;
 	
-	//private List<String[]> englishCorpus;
-	//private List<String[]> foreignCorpus;
 	private Vocabulary englishVoc;
 	private Vocabulary foreignVoc;
 	private List<SentencePair> alignedPairs;
@@ -26,22 +25,28 @@ public class EM {
 	public EM (Vocabulary englishVoc, Vocabulary foreignVoc,
 								List<SentencePair> alignedPairs)
 	{
-		//this.englishCorpus = englishCorpus;
-		//this.foreignCorpus = foreignCorpus;
 		this.englishVoc = englishVoc;
 		this.foreignVoc = foreignVoc;
 		this.alignedPairs = alignedPairs;
 		this.parameters = new ParametersCounts();
 	}
+	/**
+	 * 
+	 * @param wordEN
+	 * @param wordFN
+	 */
+	public void runInitialIterations (Set<String> wordEN , Set<String> wordFN )
+	{
+		
+	}
+	
 	
 	public void initializeParameters ()
 	{
 		logger.debug("Start initialize t parameters");
 		Set<String> wordsEN = englishVoc.getAllWords();
-		parameters.getTParameter().put("NULL", 1.0/foreignVoc.getSize());
 		for (String wordEN : wordsEN)
 		{
-			if (wordEN.equals("NULL")) continue;
 			Set<String> uniqueSpanishWords = new HashSet<String>();
 			for (SentencePair pair : alignedPairs)
 			{
@@ -60,8 +65,9 @@ public class EM {
 				logger.debug("Init value of t("+foreignWord+"|"+wordEN+") = 1.0/"+numberForeignWords);
 			}
 		}
-		
 	}
+	
+	
 }
 
 
