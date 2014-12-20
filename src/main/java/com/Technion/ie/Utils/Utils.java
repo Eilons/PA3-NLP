@@ -3,11 +3,15 @@ package com.Technion.ie.Utils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.Technion.ie.Baseline.SentencePair;
@@ -65,15 +69,16 @@ public class Utils {
 	
 	public static List<String> readCorpus (String path) throws IOException
 	{
-		InputStream sentencesFile = Utils.class.getResourceAsStream(path);
-		List<String> allLines = Utils.readAllLines(sentencesFile);
+		//InputStream sentencesFile = Utils.class.getResourceAsStream(path);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF8")); 
+		List<String> allLines = Utils.readAllLines(reader);
 		
 		return allLines;
 	}
 
-	private static List<String> readAllLines(InputStream sentencesFile) throws IOException {
+	private static List<String> readAllLines(BufferedReader reader) throws IOException {
 		List<String> sentenceList = new ArrayList<String> ();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(sentencesFile));
+		//BufferedReader reader = new BufferedReader(new InputStreamReader(inputFile));
 		String line="";
 		while ((line = reader.readLine()) != null)//loop till you dont have any lines left
 		{
@@ -110,6 +115,29 @@ public class Utils {
 			}
 		
 	}
+	
+	public static void saveParametersToFile(String parameterOutputFile, HashMap<String,Double> tParameter) 
+	{ 
+ 		System.out.println("Saving parameters to file..."); 
+ 		try { 
+ 			BufferedWriter wr = new BufferedWriter (new OutputStreamWriter(new FileOutputStream(parameterOutputFile), "UTF-8"));			 	 
+ 			for(String key : tParameter.keySet()) { 
+ 				Double parameterValue = tParameter.get(key); 
+ 				 
+ 				wr.write(key + " = " + parameterValue); 
+ 				wr.newLine(); 
+ 				wr.flush(); 
+ 			} 
+ 			wr.close(); 
+ 		} 
+ 		catch(Exception ex) { 
+ 			System.out.println("Error while trying to write parameter file: " + ex.toString()); 
+ 		} 
+ 
+ 
+ 		System.out.println("Saving parameters to file...DONE"); 
+ 	} 
+
 	
 	public static String parseEnglishFiles (List<String> allLines)
 	{

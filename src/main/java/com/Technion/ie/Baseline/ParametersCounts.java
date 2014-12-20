@@ -29,4 +29,14 @@ public class ParametersCounts {
 	{
 		return this.efParameter;
 	}
+	
+	public void set_eParameter (String word, Double value)
+	{
+		this.eParameter.put(word, value);
+	}
+	
+	public void set_efParameter (String key, Double value)
+	{
+		this.efParameter.put(key, value);
+	}
 }

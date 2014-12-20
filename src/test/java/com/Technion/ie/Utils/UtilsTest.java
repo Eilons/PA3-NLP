@@ -19,7 +19,7 @@ public class UtilsTest {
 
 	@Test
 	public void splitToTokenstest() {
-		String[] tokens = Utils.splitToTokens(line);
+		String[] tokens = calssUnderTest.splitToTokens(line);
 		Assert.assertEquals("size of the return split is not correcet", 4 , tokens.length);
 		Assert.assertTrue("first tokent is not Test", tokens[0].equals("Test"));
 		Assert.assertTrue("first tokent is not split", tokens[1].equals("split"));
