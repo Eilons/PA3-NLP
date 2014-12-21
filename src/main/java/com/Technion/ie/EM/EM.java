@@ -188,7 +188,10 @@ public class EM {
 		Utils.saveParametersToFile(PARAMETEROutPath, this.parameters.getTParameter());
 	}
 	
-	
+	public HashMap<String,Double> get_tParameters ()
+	{
+		return this.parameters.getTParameter();
+	}
 }
 
 

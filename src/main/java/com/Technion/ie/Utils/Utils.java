@@ -47,12 +47,41 @@ public class Utils {
 			initVoc(sentence, langVocabF);
 		}
 			
+		createAlignments (sentencesE,sentencesF,alignedpair);
+	}
+	
+	public static void readTrainingCorpus (String pathE, String pathF,
+														List<SentencePair> alignedpair) throws IOException
+	{
+		List<String> allLinesE = new ArrayList<String>();
+		List<String> allLinesF = new ArrayList<String>();
+		List<String[]> sentencesE = new ArrayList<String[]>();
+		List<String[]> sentencesF = new ArrayList<String[]>();
+		String[] sentence = {};
+		allLinesE = readCorpus(pathE);
+		allLinesF = readCorpus(pathF);
+		for (String line : allLinesE) 
+		{
+			sentence = splitToTokens(line);
+			sentencesE.add(sentence);
+		}
+		
+		for (String line : allLinesF) 
+		{
+			sentence = splitToTokens(line);
+			sentencesF.add(sentence);
+		}
+		createAlignments (sentencesE,sentencesF,alignedpair);
+	}
+	
+	private static void createAlignments (List<String[]> sentencesE, List<String[]> sentencesF,
+											List<SentencePair> alignedpair) throws IOException
+	{
 		for (int i = 0; i < sentencesE.size(); i++) 
 		{
 			SentencePair pair = new SentencePair(sentencesE.get(i), sentencesF.get(i));
 			alignedpair.add(pair);
 		}
-			
 	}
 	
 	
@@ -69,7 +98,6 @@ public class Utils {
 	
 	public static List<String> readCorpus (String path) throws IOException
 	{
-		//InputStream sentencesFile = Utils.class.getResourceAsStream(path);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF8")); 
 		List<String> allLines = Utils.readAllLines(reader);
 		
@@ -78,7 +106,6 @@ public class Utils {
 
 	private static List<String> readAllLines(BufferedReader reader) throws IOException {
 		List<String> sentenceList = new ArrayList<String> ();
-		//BufferedReader reader = new BufferedReader(new InputStreamReader(inputFile));
 		String line="";
 		while ((line = reader.readLine()) != null)//loop till you dont have any lines left
 		{
