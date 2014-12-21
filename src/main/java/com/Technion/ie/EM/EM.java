@@ -42,9 +42,9 @@ public class EM {
 	 * @throws KeyNotFound 
 	 */
 	
-	public void EM_alg () throws KeyNotFound
+	public void EM_alg_model1 () throws KeyNotFound
 	{
-		initializeParameters();
+		initialize_t_Parameters();
 		runInitialIterations();
 		saveParametersToFile();
 	}
@@ -144,7 +144,7 @@ public class EM {
 	}
 	
 	
-	private void initializeParameters ()
+	private void initialize_t_Parameters ()
 	{
 		System.out.println("Initalize t values = 1/n(e)");
 		logger.debug("Start initialize t parameters");
@@ -167,6 +167,33 @@ public class EM {
 			{
 				parameters.getTParameter().put(wordEN+"+"+foreignWord, 1.0/numberForeignWords);
 				logger.debug("Init value of t("+foreignWord+"|"+wordEN+") = 1.0/"+numberForeignWords);
+			}
+		}
+	}
+	
+	private void initial_q_parameters()
+	{
+		System.out.println("Initalize q values = 1/l+1");
+		Set<String> sentencesLength = new HashSet<String>();
+		
+		for (SentencePair pair : this.alignedSentencesPairs )
+		{
+			int l = pair.getSentenceOne().length;
+			int m = pair.getSentenceTwo().length;
+			String key = l +"+"+ m;
+			if (!sentencesLength.contains(key))
+			{
+				
+				sentencesLength.add(key);
+				for (int j = 0; j < l; j++)//iterate over english sentence 
+				{
+					for (int i = 0; i < m; i++)//iterate over foreign sentece 
+					{
+						String keyQ = j +"+"+ i +"+"+ l +"+"+ m; 
+						double value = 1.0/(double)l;//we use l and not l+1 because our sentences already include NULL
+						parameters.getQParameter().put(keyQ, value);
+					}
+				}
 			}
 		}
 	}

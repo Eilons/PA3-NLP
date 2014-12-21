@@ -7,12 +7,14 @@ public class ParametersCounts {
 	private HashMap <String, Double> tParameter;// (NULL,0.5), (cat+acat,0.3),(table+atable,0.1)
 	private HashMap <String, Double> eParameter;//c(e) - expectedCountsEnglish
 	private HashMap <String, Double> efParameter;//c(e,f) - expectedCountsEnglishForeign
+	private HashMap <String,Double> qParameter;//q(j|i,l,m) - (j+i+l+m,0.02)
 	
 	public ParametersCounts()
 	{
 		this.tParameter = new HashMap<String,Double>();
 		this.eParameter = new HashMap<String,Double>();
 		this.efParameter = new HashMap<String,Double>();
+		this.qParameter = new HashMap<String,Double>();
 	}
 	
 	public HashMap<String, Double> getTParameter()
@@ -30,6 +32,11 @@ public class ParametersCounts {
 		return this.efParameter;
 	}
 	
+	public HashMap<String,Double> getQParameter()
+	{
+		return this.qParameter;
+	}
+	
 	public void set_eParameter (String word, Double value)
 	{
 		this.eParameter.put(word, value);
@@ -39,4 +46,8 @@ public class ParametersCounts {
 	{
 		this.efParameter.put(key, value);
 	}
+	
+	
+	
+	
 }

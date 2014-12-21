@@ -34,7 +34,7 @@ public class BaseLine {
 		//Training parameters
 		Utils.readTrainingCorpus(langVocabE, langVocabF, corpusEnNULL, corpusFn, alignedCorpuspair);
 		EM emAlgModel1 = new EM(langVocabE, langVocabF, alignedCorpuspair);
-		emAlgModel1.EM_alg();
+		emAlgModel1.EM_alg_model1();
 		
 		//reading Dev files and creating sentences pair
 		Utils.readTrainingCorpus(devEnNULL, devFn, alignedDevpair);
