@@ -1,5 +1,6 @@
 package com.Technion.ie.Baseline;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,8 @@ public class BaseLine {
 	
 	public static final String IBM_MODEL1_OUT = "c:\\H3p-NLP\\IBM_MODEL1_OUT.txt";
 	
+	public static final String T_PARAMETER_FILE = "c:\\H3p-NLP\\parameterOut.txt";
+	
 	
 	public void EMModel1 () throws Exception
 	{
@@ -40,10 +43,20 @@ public class BaseLine {
 		Utils.readTrainingCorpus(devEnNULL, devFn, alignedDevpair);
 		alignmentFormat alignedMaxDev = new alignmentFormat(alignedDevpair, emAlgModel1.get_tParameters());
 		
-		alignedMaxDev.writeAlignmentFile(IBM_MODEL1_OUT);
+		alignedMaxDev.writeAlignmentFile(IBM_MODEL1_OUT);	
 		
-		
-		
+	}
+	
+	public void EMModel2 () throws Exception
+	{
+		Vocabulary langVocabE = new Vocabulary();
+		Vocabulary langVocabF = new Vocabulary();
+		List<SentencePair> alignedCorpuspair = new ArrayList<SentencePair>();
+		ParametersCounts pc = new ParametersCounts();
+		//Training parameters
+		Utils.readTrainingCorpus(langVocabE, langVocabF, corpusEnNULL, corpusFn, alignedCorpuspair);
+		Utils.read_tParameterFile(T_PARAMETER_FILE, pc.getTParameter());
+		EM emAlgModel2 = new EM(langVocabE, langVocabF, alignedCorpuspair, pc);
 		
 		
 	}

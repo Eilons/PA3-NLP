@@ -35,6 +35,15 @@ public class EM {
 		this.alignedSentencesPairs = alignedPairs;
 		this.parameters = new ParametersCounts();
 	}
+	
+	public EM (Vocabulary englishVoc, Vocabulary foreignVoc,
+			List<SentencePair> alignedPairs, ParametersCounts pc)
+{
+this.englishVoc = englishVoc;
+this.foreignVoc = foreignVoc;
+this.alignedSentencesPairs = alignedPairs;
+this.parameters = pc;
+}
 	/**
 	 * 
 	 * @param wordEN
@@ -131,7 +140,7 @@ public class EM {
 	}
 	private void initializeExpectedCounts()
 	{
-		logger.debug("Initalize expected counts");
+		logger.debug("Initalize expected counts c(e) and c(e,f)");
 		for (String wordEn : englishVoc.getAllWords())
 		{
 			this.parameters.set_eParameter(wordEn, 0.0);
@@ -139,6 +148,24 @@ public class EM {
 		for (String key : parameters.getTParameter().keySet())//return key of aligned english and foreign words
 		{
 			this.parameters.set_efParameter(key, 0.0);
+		}
+		logger.debug("Initalize expected counts c(j|i,l,m) and c(i,l,m)");
+		if (!parameters.getQParameter().isEmpty())//if not empty- dealing with IBM_model 2
+		{
+			Set<String> iParameterSet = new HashSet<String>();//keeping all seen i,l,m
+			for (String key : parameters.getQParameter().keySet())
+			{
+				//j +"+"+ i +"+"+ l +"+"+ m;
+				String[] keyline =key.split("\\+");
+				String key2 = keyline[1] +"+"+ keyline[2] +"+"+ keyline[3];
+				if (!iParameterSet.contains(key2))
+				{
+					iParameterSet.add(key2);
+					this.parameters.set_iPositionsParameter(key2, 0.0);
+				}
+				this.parameters.set_jiPositionsParameter(key, 0.0);
+				
+			}
 		}
 		logger.debug("Initialization finished");
 	}

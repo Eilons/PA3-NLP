@@ -8,6 +8,8 @@ public class ParametersCounts {
 	private HashMap <String, Double> eParameter;//c(e) - expectedCountsEnglish
 	private HashMap <String, Double> efParameter;//c(e,f) - expectedCountsEnglishForeign
 	private HashMap <String,Double> qParameter;//q(j|i,l,m) - (j+i+l+m,0.02)
+	private HashMap <String,Double> jiPositionsParameter;//c(j|i,l,m)
+	private HashMap <String,Double> iPositionsParameter;//c(i,l,m)
 	
 	public ParametersCounts()
 	{
@@ -15,6 +17,9 @@ public class ParametersCounts {
 		this.eParameter = new HashMap<String,Double>();
 		this.efParameter = new HashMap<String,Double>();
 		this.qParameter = new HashMap<String,Double>();
+		this.jiPositionsParameter = new HashMap<String,Double>();
+		this.iPositionsParameter = new HashMap<String,Double>();
+		
 	}
 	
 	public HashMap<String, Double> getTParameter()
@@ -37,6 +42,16 @@ public class ParametersCounts {
 		return this.qParameter;
 	}
 	
+	public HashMap<String,Double> get_jiPositionsParameter()
+	{
+		return this.jiPositionsParameter;
+	}
+	
+	public HashMap<String,Double> get_iPositionsParameter()
+	{
+		return this.iPositionsParameter;
+	}
+	
 	public void set_eParameter (String word, Double value)
 	{
 		this.eParameter.put(word, value);
@@ -45,6 +60,16 @@ public class ParametersCounts {
 	public void set_efParameter (String key, Double value)
 	{
 		this.efParameter.put(key, value);
+	}
+	
+	public void set_jiPositionsParameter (String key, Double value)
+	{
+		this.jiPositionsParameter.put(key, value);
+	}
+	
+	public void set_iPositionsParameter (String key, Double value)
+	{
+		this.iPositionsParameter.put(key, value);
 	}
 	
 	

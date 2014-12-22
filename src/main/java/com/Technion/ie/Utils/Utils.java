@@ -188,6 +188,15 @@ public class Utils {
 		langVocab.addSentence(sentence);
 	}
 	
+	//read tParameter file created at part1 and set values into HashMap
+	public static void read_tParameterFile (String path, HashMap<String,Double> tParameter) throws IOException
+	{
+		List<String> allLines = readCorpus(path);
+		for (String line : allLines)
+		{
+			String[] strings = line.split("\\s+");
+			tParameter.put(strings[0], Double.parseDouble(strings[2]));
+		}
+	}
 	
-
 }

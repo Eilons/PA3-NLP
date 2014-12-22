@@ -19,7 +19,9 @@ public class EMTest {
 	@Test
 	public void testSplitKey() {
 		String wordEN = (key.split("\\+"))[0];
+		String[] strings = (key.split("\\+"));
 		Assert.assertEquals("English word is not table", "table", wordEN);
+		Assert.assertEquals("strings length is not 2", 2, strings.length);
 	}
 
 }
