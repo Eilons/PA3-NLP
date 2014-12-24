@@ -19,6 +19,8 @@ public class EM {
 	private final static Logger logger = Logger.getLogger(EM.class);
 	public static final Integer ITERATIONS = 5;
 	public static String PARAMETER_FORMAT = "%s %s\n";
+	public static String MODEL1 = "model1";
+	public static String MODEL2 = "model2";
 	public static final String PARAMETEROutPath = "/c:/h3p-NLP/parameterOut.txt";
 	
 	
@@ -51,21 +53,27 @@ this.parameters = pc;
 	 * @throws KeyNotFound 
 	 */
 	
-	public void EM_alg_model1 () throws KeyNotFound
+	public void EM_alg_model1 (String model) throws KeyNotFound
 	{
 		initialize_t_Parameters();
-		runInitialIterations();
-		saveParametersToFile();
+		runInitialIterations(model);
+		saveParametersToFile(PARAMETEROutPath);
 	}
 	
-	private void runInitialIterations () throws KeyNotFound
+	public void EM_alg_model2 (String model) throws KeyNotFound
+	{
+		initial_q_parameters();//t parameters read from file.
+		runInitialIterations(model);
+	}
+	
+	private void runInitialIterations (String model) throws KeyNotFound
 	{
 		for (int iteration = 1; iteration <= ITERATIONS; iteration++)
 		{
 			System.out.println("running iteration:" + iteration);
 			initializeExpectedCounts();
 			System.out.println("running algo");
-			runEMalgorithm();
+			runEMalgorithm(model);
 			System.out.println("updating parameters");
 			updateParameters();
 		}
@@ -75,45 +83,62 @@ this.parameters = pc;
 	
 	
 	private void updateParameters() {
-		double param = 0.0;
+		double paramT = 0.0;
+		double paramQ = 0.0;
+		//update t parameters
 		for (String key : this.parameters.getTParameter().keySet())
 		{
 			if (this.parameters.getEFParameter().containsKey(key))
 			{
 				String wordEN = (key.split("\\+"))[0];
-				param = (this.parameters.getEFParameter().get(key)) / (this.parameters.getEParameter().get(wordEN)); 
+				paramT = (this.parameters.getEFParameter().get(key)) / (this.parameters.getEParameter().get(wordEN)); 
 			}
-		this.parameters.getTParameter().put(key, param);
+		this.parameters.getTParameter().put(key, paramT);
+		}
+		//update q parameters
+		for (String key : this.parameters.getQParameter().keySet())
+		{
+			if (this.parameters.get_jiPositionsParameter().containsKey(key))
+			{
+				String[] keyline = key.split("\\+");
+				String keyCI = keyline[1] +"+"+ keyline[2] +"+"+ keyline[3];
+				paramQ = (this.parameters.get_jiPositionsParameter().get(key)) / 
+																(this.parameters.get_iPositionsParameter().get(keyCI));
+			}
+			this.parameters.getQParameter().put(key, paramQ);
 		}
 		
 	}
-	private void runEMalgorithm() throws KeyNotFound {
+	private void runEMalgorithm(String model) throws KeyNotFound {
 		for (int k=1; k<= this.alignedSentencesPairs.size(); k++ )
 		{
 			String[] senEN = this.alignedSentencesPairs.get(k-1).getSentenceOne();
 			String[] senFN = this.alignedSentencesPairs.get(k-1).getSentenceTwo();
 			int l = senEN.length;
 			int m = senFN.length;
-			//handling case of empty lines from training sets
-			//if ( ((senEN[0].equals("") && l==1)) || ((senFN[0].equals("") && m==1)) ) continue;
+			double delta =0.0;
 			
 			for (int i=1; i<=m; i++)//loop over all foreign words
 			{
 				String wordFN = senFN[i-1];
-				double deltaSum = getDeltaSum(senEN, wordFN);
+				double deltaSum = getDeltaSum(senEN,wordFN,i-1,m,model);
 				
 				for (int j=0; j<l; j++)// loop over all english words in the sentence, j=0 mean NULL
 				{
 					String wordEN = senEN[j];
-					String key = wordEN+"+"+wordFN;
-					
-					double delta = (this.parameters.getTParameter().get(key)) / deltaSum;
-					
+					String keyT = wordEN+"+"+wordFN;
+					String keyQ = j+"+"+(i-1)+"+"+l+"+"+m;
+					if (model.equals(MODEL1)) {
+						delta = (this.parameters.getTParameter().get(keyT)) / deltaSum;
+					}
+					if (model.equals(MODEL2)) {
+						delta = ((this.parameters.getTParameter().get(keyT) * this.parameters.getQParameter().get(keyQ)))
+																								/ deltaSum;
+					}
 					//update c(e,f) values
-					double cEF = this.parameters.getEFParameter().get(key) + delta;
-					this.parameters.set_efParameter(key, cEF);
+					double cEF = this.parameters.getEFParameter().get(keyT) + delta;
+					this.parameters.set_efParameter(keyT, cEF);
 					//update c(e) values
-					//System.out.println("delta value is:" + delta);
 					if (!this.parameters.getEParameter().containsKey(wordEN))
 					{
 						throw new KeyNotFound("the hash map for c(e) doesnt contain" + wordEN);
@@ -121,19 +146,57 @@ this.parameters = pc;
 					double cE = this.parameters.getEParameter().get(wordEN) + delta;
 					this.parameters.set_eParameter(wordEN, cE);
 					
+					if (model.equals(MODEL2))
+					{
+						//update c(j|i,l,m) values
+						if (!this.parameters.get_jiPositionsParameter().containsKey(keyQ))
+						{
+							throw new KeyNotFound("the hash map for c(j|i,l,m) doesnt contain" + keyQ);
+						}
+						double cJI = this.parameters.get_jiPositionsParameter().get(keyQ) + delta;
+						this.parameters.set_jiPositionsParameter(keyQ, cJI);
+						//update c(i,l,m) values
+						String keyCI = (i-1)+"+"+l+"+"+m;
+						if (!this.parameters.get_iPositionsParameter().containsKey(keyCI))
+						{
+							throw new KeyNotFound("the hash map for c(i,l,m) doesnt contain" + keyCI);
+						}
+						double cI = this.parameters.get_iPositionsParameter().get(keyCI) + delta;
+						this.parameters.set_iPositionsParameter(keyCI, cI);
+					} 
+					
 				}
 			}
 		}
 	}
 	
-	
-	private Double getDeltaSum(String[] senEN, String wordFN) {
+	/**
+	 * 
+	 * @param senEN
+	 * @param wordFN
+	 * @param fPosition - position of the foreign word
+	 * @param m - foreign sentence length
+	 * @param model - model1 or model2
+	 * @return
+	 */
+	private Double getDeltaSum(String[] senEN, String wordFN,int fPosition, int m,String model) {
 		double sum = 0.0;
-		for (String wordEN : senEN)
+		if (model.equals(MODEL1)) {
+			for (String wordEN : senEN)
+			{
+				String key = wordEN+"+"+wordFN;
+				sum += this.parameters.getTParameter().get(key);
+			}
+		}
+		if (model.equals(MODEL2))
 		{
-			String key = wordEN+"+"+wordFN;
-			//System.out.println("key:" + key);
-			sum += this.parameters.getTParameter().get(key);
+			int l = senEN.length;//length of English sentence
+			for (int j=0; j<l ;j++ )
+			{
+				String keyT = senEN[j]+"+"+wordFN;
+				String keyQ = j +"+"+ fPosition +"+"+ l +"+"+ m;
+				sum+= this.parameters.getQParameter().get(keyQ) * this.parameters.getTParameter().get(keyT);
+			}
 		}
 		
 		return sum;
@@ -155,7 +218,6 @@ this.parameters = pc;
 			Set<String> iParameterSet = new HashSet<String>();//keeping all seen i,l,m
 			for (String key : parameters.getQParameter().keySet())
 			{
-				//j +"+"+ i +"+"+ l +"+"+ m;
 				String[] keyline =key.split("\\+");
 				String key2 = keyline[1] +"+"+ keyline[2] +"+"+ keyline[3];
 				if (!iParameterSet.contains(key2))
@@ -225,26 +287,20 @@ this.parameters = pc;
 		}
 	}
 	
-	private void saveParametersToFile ()
+	private void saveParametersToFile (String path)
 	{
-/*		System.out.println("save new t values into file");
-		String content = "";
-		for (Entry<String,Double> entry : this.parameters.getTParameter().entrySet())
-		{
-			String key = entry.getKey();
-			double value = entry.getValue();
-			
-			content += (String.format(PARAMETER_FORMAT,key, String.valueOf(value)));
-			System.out.println("content = " + key + String.valueOf(value));
-		}
-		Utils.writeToFile(PARAMETEROutPath, content);*/
 		
-		Utils.saveParametersToFile(PARAMETEROutPath, this.parameters.getTParameter());
+		Utils.saveParametersToFile(path, this.parameters.getTParameter());
 	}
 	
 	public HashMap<String,Double> get_tParameters ()
 	{
 		return this.parameters.getTParameter();
+	}
+	
+	public HashMap<String,Double> get_qParameters ()
+	{
+		return this.parameters.getQParameter();
 	}
 }
 

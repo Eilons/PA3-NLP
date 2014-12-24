@@ -7,7 +7,8 @@ public class RunExperiments {
 	public static void main(String[] args) throws Exception {
 		
 		BaseLine baseline = new BaseLine();
-		baseline.EMModel1();
+		//baseline.EMModel1();
+		baseline.EMModel2();
 		
 
 	}
